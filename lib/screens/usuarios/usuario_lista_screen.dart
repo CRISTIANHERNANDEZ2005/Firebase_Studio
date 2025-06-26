@@ -7,6 +7,7 @@ import '../../widgets/message_toast.dart';
 import '../../widgets/list_item_card.dart';
 import '../../widgets/bezier_container.dart';
 
+// Pantalla que muestra la lista de usuarios registrados
 class UsuarioListaScreen extends StatefulWidget {
   const UsuarioListaScreen({super.key});
 
@@ -15,17 +16,19 @@ class UsuarioListaScreen extends StatefulWidget {
 }
 
 class _UsuarioListaScreenState extends State<UsuarioListaScreen> {
-  String? _successMessage;
-  String? _errorMessage;
+  String? _successMessage; // Mensaje de éxito
+  String? _errorMessage; // Mensaje de error
 
   @override
   void initState() {
     super.initState();
+    // Cargar usuarios después de que la interfaz se haya construido
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadUsuarios();
     });
   }
 
+  // Carga los usuarios desde el servicio
   Future<void> _loadUsuarios() async {
     final usuarioService = Provider.of<UsuarioService>(context, listen: false);
     final error = await usuarioService.fetchUsuarios();
@@ -34,31 +37,27 @@ class _UsuarioListaScreenState extends State<UsuarioListaScreen> {
     }
   }
 
+  // Muestra un mensaje de éxito temporal
   void _showSuccessMessage(String message) {
     setState(() {
       _successMessage = message;
       _errorMessage = null;
     });
+    // Oculta el mensaje después de 3 segundos
     Future.delayed(const Duration(seconds: 3), () {
-      if (mounted) {
-        setState(() {
-          _successMessage = null;
-        });
-      }
+      if (mounted) setState(() => _successMessage = null);
     });
   }
 
+  // Muestra un mensaje de error temporal
   void _showErrorMessage(String message) {
     setState(() {
       _errorMessage = message;
       _successMessage = null;
     });
+    // Oculta el mensaje después de 3 segundos
     Future.delayed(const Duration(seconds: 3), () {
-      if (mounted) {
-        setState(() {
-          _errorMessage = null;
-        });
-      }
+      if (mounted) setState(() => _errorMessage = null);
     });
   }
 
@@ -71,30 +70,29 @@ class _UsuarioListaScreenState extends State<UsuarioListaScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // Fondo decorativo
+          // Fondo decorativo naranja (tema usuarios)
           Positioned(
             top: 0,
             left: 0,
-            child: BezierContainer(
-              color: Colors.orange, // Color distintivo para usuarios
-              isTop: true,
-            ),
+            child: BezierContainer(color: Colors.orange, isTop: true),
           ),
 
-          // Contenido principal
+          // Contenido principal dentro del área segura
           SafeArea(
             child: Column(
               children: [
-                // AppBar personalizado
+                // Barra superior personalizada
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: Row(
                     children: [
+                      // Botón para volver atrás
                       IconButton(
                         icon: const Icon(Icons.arrow_back),
                         onPressed: () => Navigator.pop(context),
                       ),
                       const SizedBox(width: 8),
+                      // Título de la pantalla
                       Text(
                         'Usuarios',
                         style: GoogleFonts.poppins(
@@ -103,6 +101,7 @@ class _UsuarioListaScreenState extends State<UsuarioListaScreen> {
                         ),
                       ),
                       const Spacer(),
+                      // Botón para cerrar sesión
                       IconButton(
                         icon: const Icon(Icons.logout),
                         tooltip: 'Cerrar sesión',
@@ -115,13 +114,13 @@ class _UsuarioListaScreenState extends State<UsuarioListaScreen> {
                   ),
                 ),
 
-                // Lista de usuarios
+                // Lista de usuarios (contenido principal)
                 Expanded(child: _buildMainContent(usuarioService, theme)),
               ],
             ),
           ),
 
-          // Mensajes flotantes
+          // Mensajes flotantes (éxito/error)
           if (_successMessage != null)
             Positioned(
               top: 16,
@@ -151,8 +150,9 @@ class _UsuarioListaScreenState extends State<UsuarioListaScreen> {
             ),
         ],
       ),
+      // Botón flotante para agregar nuevos usuarios
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.orange, // Color coherente con el tema
+        backgroundColor: Colors.orange,
         child: const Icon(Icons.add, color: Colors.white),
         onPressed: () async {
           final result = await Navigator.pushNamed(
@@ -168,11 +168,14 @@ class _UsuarioListaScreenState extends State<UsuarioListaScreen> {
     );
   }
 
+  // Construye el contenido principal según el estado
   Widget _buildMainContent(UsuarioService usuarioService, ThemeData theme) {
+    // Mostrar indicador de carga si está cargando
     if (usuarioService.isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
 
+    // Mostrar mensaje si no hay usuarios
     if (usuarioService.usuarios.isEmpty) {
       return Center(
         child: Column(
@@ -194,18 +197,17 @@ class _UsuarioListaScreenState extends State<UsuarioListaScreen> {
       );
     }
 
+    // Lista de usuarios con capacidad de "pull to refresh"
     return RefreshIndicator(
       onRefresh: _loadUsuarios,
       child: ListView.builder(
-        padding: const EdgeInsets.only(bottom: 80),
+        padding: const EdgeInsets.only(bottom: 80), // Espacio para el FAB
         itemCount: usuarioService.usuarios.length,
         itemBuilder: (context, index) {
           final usuario = usuarioService.usuarios[index];
           return ListItemCard(
             title: '${usuario.nombre} ${usuario.apellido}',
-            subtitle:
-                'Número: ${usuario.numero}\n'
-                'ID: ${usuario.id}',
+            subtitle: 'Número: ${usuario.numero}\nID: ${usuario.id}',
             leading: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
@@ -215,6 +217,7 @@ class _UsuarioListaScreenState extends State<UsuarioListaScreen> {
               child: Icon(Icons.person, color: Colors.orange),
             ),
             actions: [
+              // Botón para editar usuario
               IconButton(
                 icon: Icon(Icons.edit, color: Colors.orange),
                 onPressed: () async {
@@ -229,30 +232,32 @@ class _UsuarioListaScreenState extends State<UsuarioListaScreen> {
                   }
                 },
               ),
+              // Botón para eliminar usuario
               IconButton(
                 icon: const Icon(Icons.delete, color: Colors.red),
                 onPressed: () async {
                   final confirm = await showDialog<bool>(
                     context: context,
-                    builder: (context) => AlertDialog(
-                      title: const Text('Confirmar eliminación'),
-                      content: const Text(
-                        '¿Estás seguro de eliminar este usuario?',
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, false),
-                          child: const Text('Cancelar'),
-                        ),
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, true),
-                          child: const Text(
-                            'Eliminar',
-                            style: TextStyle(color: Colors.red),
+                    builder:
+                        (context) => AlertDialog(
+                          title: const Text('Confirmar eliminación'),
+                          content: const Text(
+                            '¿Estás seguro de eliminar este usuario?',
                           ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, false),
+                              child: const Text('Cancelar'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, true),
+                              child: const Text(
+                                'Eliminar',
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
                   );
 
                   if (confirm == true && mounted) {

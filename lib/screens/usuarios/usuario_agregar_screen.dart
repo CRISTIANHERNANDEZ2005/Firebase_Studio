@@ -5,6 +5,7 @@ import '../../utils/validators.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/edit_form_container.dart';
 
+// Pantalla para agregar nuevos usuarios
 class UsuarioAgregarScreen extends StatefulWidget {
   const UsuarioAgregarScreen({super.key});
 
@@ -19,8 +20,10 @@ class _UsuarioAgregarScreenState extends State<UsuarioAgregarScreen> {
   final _apellidoController = TextEditingController();
   final _contrasenaController = TextEditingController();
   bool _obscurePassword = true;
+
   @override
   void dispose() {
+    // Limpiar los controladores al destruir el widget
     _numeroController.dispose();
     _nombreController.dispose();
     _apellidoController.dispose();
@@ -28,6 +31,7 @@ class _UsuarioAgregarScreenState extends State<UsuarioAgregarScreen> {
     super.dispose();
   }
 
+  // Función para enviar los datos del nuevo usuario
   void _agregarUsuario() async {
     if (_formKey.currentState!.validate()) {
       final usuarioService = Provider.of<UsuarioService>(
@@ -67,6 +71,7 @@ class _UsuarioAgregarScreenState extends State<UsuarioAgregarScreen> {
           key: _formKey,
           child: Column(
             children: [
+              // Campo para número de teléfono
               CustomTextField(
                 label: 'Número',
                 controller: _numeroController,
@@ -75,6 +80,8 @@ class _UsuarioAgregarScreenState extends State<UsuarioAgregarScreen> {
                 keyboardType: TextInputType.phone,
               ),
               const SizedBox(height: 16),
+
+              // Campo para nombre
               CustomTextField(
                 label: 'Nombre',
                 controller: _nombreController,
@@ -83,6 +90,8 @@ class _UsuarioAgregarScreenState extends State<UsuarioAgregarScreen> {
                 prefixIcon: Icons.person,
               ),
               const SizedBox(height: 16),
+
+              // Campo para apellido
               CustomTextField(
                 label: 'Apellido',
                 controller: _apellidoController,
@@ -91,6 +100,8 @@ class _UsuarioAgregarScreenState extends State<UsuarioAgregarScreen> {
                 prefixIcon: Icons.person_outline,
               ),
               const SizedBox(height: 16),
+
+              // Campo para contraseña con toggle de visibilidad
               CustomTextField(
                 label: 'Contraseña',
                 controller: _contrasenaController,
@@ -101,11 +112,9 @@ class _UsuarioAgregarScreenState extends State<UsuarioAgregarScreen> {
                   icon: Icon(
                     _obscurePassword ? Icons.visibility : Icons.visibility_off,
                   ),
-                  onPressed: () {
-                    setState(() {
-                      _obscurePassword = !_obscurePassword;
-                    });
-                  },
+                  onPressed:
+                      () =>
+                          setState(() => _obscurePassword = !_obscurePassword),
                 ),
               ),
             ],

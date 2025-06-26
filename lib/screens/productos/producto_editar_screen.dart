@@ -6,6 +6,7 @@ import '../../models/producto.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/edit_form_container.dart';
 
+// Pantalla para editar productos existentes
 class ProductoEditarScreen extends StatefulWidget {
   const ProductoEditarScreen({super.key});
 
@@ -15,16 +16,19 @@ class ProductoEditarScreen extends StatefulWidget {
 
 class _ProductoEditarScreenState extends State<ProductoEditarScreen> {
   final _formKey = GlobalKey<FormState>();
+  // Controladores para los campos
   late TextEditingController _nombreController;
   late TextEditingController _precioController;
   late TextEditingController _descripcionController;
   late TextEditingController _nombreCategoriaController;
-  late Producto _producto;
+  late Producto _producto; // Producto a editar
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    // Obtiene el producto pasado como argumento
     _producto = ModalRoute.of(context)!.settings.arguments as Producto;
+    // Inicializa los controladores con los valores actuales del producto
     _nombreController = TextEditingController(text: _producto.nombre);
     _precioController = TextEditingController(
       text: _producto.precio.toString(),
@@ -37,6 +41,7 @@ class _ProductoEditarScreenState extends State<ProductoEditarScreen> {
 
   @override
   void dispose() {
+    // Limpieza de controladores
     _nombreController.dispose();
     _precioController.dispose();
     _descripcionController.dispose();
@@ -44,6 +49,7 @@ class _ProductoEditarScreenState extends State<ProductoEditarScreen> {
     super.dispose();
   }
 
+  // Validador personalizado para precio (igual que en agregar)
   String? _validatePrecio(String? value) {
     if (value == null || value.isEmpty) return 'Precio es requerido';
     final price = double.tryParse(value);
@@ -51,14 +57,17 @@ class _ProductoEditarScreenState extends State<ProductoEditarScreen> {
     return null;
   }
 
+  // Función para actualizar el producto
   void _editarProducto() async {
     if (_formKey.currentState!.validate()) {
       final productoService = Provider.of<ProductoService>(
         context,
         listen: false,
       );
+
+      // Llama al servicio para actualizar
       final error = await productoService.updateProducto(
-        id: _producto.id,
+        id: _producto.id, // ID del producto existente
         nombre: _nombreController.text,
         precio: double.parse(_precioController.text),
         descripcion:
@@ -71,6 +80,7 @@ class _ProductoEditarScreenState extends State<ProductoEditarScreen> {
                 : _nombreCategoriaController.text,
       );
 
+      // Manejo de resultados
       if (error == null && mounted) {
         Navigator.pop(context, 'Producto actualizado correctamente');
       } else if (mounted) {
@@ -88,8 +98,9 @@ class _ProductoEditarScreenState extends State<ProductoEditarScreen> {
   Widget build(BuildContext context) {
     final productoService = Provider.of<ProductoService>(context);
 
+    // Usa el mismo contenedor de formulario reutilizable
     return EditFormContainer(
-      title: 'Editar Producto',
+      title: 'Editar Producto', // Título diferente
       isLoading: productoService.isLoading,
       onSave: _editarProducto,
       formFields: [
@@ -97,6 +108,7 @@ class _ProductoEditarScreenState extends State<ProductoEditarScreen> {
           key: _formKey,
           child: Column(
             children: [
+              // Campo de nombre (pre-llenado)
               CustomTextField(
                 label: 'Nombre del producto',
                 controller: _nombreController,
@@ -105,6 +117,8 @@ class _ProductoEditarScreenState extends State<ProductoEditarScreen> {
                 prefixIcon: Icons.shopping_bag,
               ),
               const SizedBox(height: 16),
+
+              // Campo de precio (pre-llenado)
               CustomTextField(
                 label: 'Precio',
                 controller: _precioController,
@@ -113,13 +127,17 @@ class _ProductoEditarScreenState extends State<ProductoEditarScreen> {
                 prefixIcon: Icons.attach_money,
               ),
               const SizedBox(height: 16),
+
+              // Campo de descripción (pre-llenado)
               CustomTextField(
                 label: 'Descripción (opcional)',
                 controller: _descripcionController,
                 prefixIcon: Icons.description,
-                maxLines: 3,
+                maxLines: 3, // Más compacto que en agregar
               ),
               const SizedBox(height: 16),
+
+              // Campo de categoría (pre-llenado)
               CustomTextField(
                 label: 'Categoría (opcional)',
                 controller: _nombreCategoriaController,

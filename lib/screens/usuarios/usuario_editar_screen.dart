@@ -6,6 +6,7 @@ import '../../models/usuario.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/edit_form_container.dart';
 
+// Pantalla para editar usuarios existentes
 class UsuarioEditarScreen extends StatefulWidget {
   const UsuarioEditarScreen({super.key});
 
@@ -25,7 +26,9 @@ class _UsuarioEditarScreenState extends State<UsuarioEditarScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    // Obtener el usuario pasado como argumento
     _usuario = ModalRoute.of(context)!.settings.arguments as Usuario;
+    // Inicializar controladores con los valores actuales del usuario
     _numeroController = TextEditingController(text: _usuario.numero);
     _nombreController = TextEditingController(text: _usuario.nombre);
     _apellidoController = TextEditingController(text: _usuario.apellido);
@@ -41,6 +44,7 @@ class _UsuarioEditarScreenState extends State<UsuarioEditarScreen> {
     super.dispose();
   }
 
+  // Función para actualizar los datos del usuario
   void _editarUsuario() async {
     if (_formKey.currentState!.validate()) {
       final usuarioService = Provider.of<UsuarioService>(
@@ -92,6 +96,7 @@ class _UsuarioEditarScreenState extends State<UsuarioEditarScreen> {
                 keyboardType: TextInputType.phone,
               ),
               const SizedBox(height: 16),
+
               CustomTextField(
                 label: 'Nombre',
                 controller: _nombreController,
@@ -100,6 +105,7 @@ class _UsuarioEditarScreenState extends State<UsuarioEditarScreen> {
                 prefixIcon: Icons.person,
               ),
               const SizedBox(height: 16),
+
               CustomTextField(
                 label: 'Apellido',
                 controller: _apellidoController,
@@ -108,6 +114,8 @@ class _UsuarioEditarScreenState extends State<UsuarioEditarScreen> {
                 prefixIcon: Icons.person_outline,
               ),
               const SizedBox(height: 16),
+
+              // Campo opcional para cambiar contraseña
               CustomTextField(
                 label: 'Nueva Contraseña (opcional)',
                 controller: _contrasenaController,
@@ -122,11 +130,9 @@ class _UsuarioEditarScreenState extends State<UsuarioEditarScreen> {
                   icon: Icon(
                     _obscurePassword ? Icons.visibility : Icons.visibility_off,
                   ),
-                  onPressed: () {
-                    setState(() {
-                      _obscurePassword = !_obscurePassword;
-                    });
-                  },
+                  onPressed:
+                      () =>
+                          setState(() => _obscurePassword = !_obscurePassword),
                 ),
               ),
             ],

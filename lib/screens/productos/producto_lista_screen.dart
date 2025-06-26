@@ -7,6 +7,7 @@ import '../../widgets/message_toast.dart';
 import '../../widgets/list_item_card.dart';
 import '../../widgets/bezier_container.dart';
 
+// Pantalla que muestra la lista de productos
 class ProductoListaScreen extends StatefulWidget {
   const ProductoListaScreen({super.key});
 
@@ -15,17 +16,20 @@ class ProductoListaScreen extends StatefulWidget {
 }
 
 class _ProductoListaScreenState extends State<ProductoListaScreen> {
+  // Mensajes para mostrar al usuario
   String? _successMessage;
   String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
+    // Cargar los productos después de que el widget se inicialice
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadProductos();
     });
   }
 
+  // Función para cargar productos desde el servicio
   Future<void> _loadProductos() async {
     final productoService = Provider.of<ProductoService>(
       context,
@@ -37,11 +41,13 @@ class _ProductoListaScreenState extends State<ProductoListaScreen> {
     }
   }
 
+  // Mostrar mensaje de éxito temporal
   void _showSuccessMessage(String message) {
     setState(() {
       _successMessage = message;
       _errorMessage = null;
     });
+    // Ocultar después de 3 segundos
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
         setState(() {
@@ -51,11 +57,13 @@ class _ProductoListaScreenState extends State<ProductoListaScreen> {
     });
   }
 
+  // Mostrar mensaje de error temporal
   void _showErrorMessage(String message) {
     setState(() {
       _errorMessage = message;
       _successMessage = null;
     });
+    // Ocultar después de 3 segundos
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
         setState(() {
@@ -67,6 +75,7 @@ class _ProductoListaScreenState extends State<ProductoListaScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Obtener servicios y tema actual
     final productoService = Provider.of<ProductoService>(context);
     final authService = Provider.of<AuthService>(context, listen: false);
     final theme = Theme.of(context);
@@ -74,30 +83,32 @@ class _ProductoListaScreenState extends State<ProductoListaScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // Fondo decorativo
+          // Fondo decorativo con forma curva
           Positioned(
             top: 0,
             left: 0,
             child: BezierContainer(
-              color: Colors.green, // Color diferente para productos
+              color: Colors.green, // Color verde para productos
               isTop: true,
             ),
           ),
 
-          // Contenido principal
+          // Contenido principal seguro para áreas notables
           SafeArea(
             child: Column(
               children: [
-                // AppBar personalizado
+                // Barra superior personalizada
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: Row(
                     children: [
+                      // Botón para volver atrás
                       IconButton(
                         icon: const Icon(Icons.arrow_back),
                         onPressed: () => Navigator.pop(context),
                       ),
                       const SizedBox(width: 8),
+                      // Título de la pantalla
                       Text(
                         'Productos',
                         style: GoogleFonts.poppins(
@@ -106,6 +117,7 @@ class _ProductoListaScreenState extends State<ProductoListaScreen> {
                         ),
                       ),
                       const Spacer(),
+                      // Botón para cerrar sesión
                       IconButton(
                         icon: const Icon(Icons.logout),
                         tooltip: 'Cerrar sesión',
@@ -118,13 +130,13 @@ class _ProductoListaScreenState extends State<ProductoListaScreen> {
                   ),
                 ),
 
-                // Lista de productos
+                // Contenido principal (lista de productos)
                 Expanded(child: _buildMainContent(productoService, theme)),
               ],
             ),
           ),
 
-          // Mensajes flotantes
+          // Mensajes flotantes de éxito/error
           if (_successMessage != null)
             Positioned(
               top: 16,
@@ -154,8 +166,9 @@ class _ProductoListaScreenState extends State<ProductoListaScreen> {
             ),
         ],
       ),
+      // Botón flotante para agregar nuevos productos
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.green, // Color coherente con el tema
+        backgroundColor: Colors.green,
         child: const Icon(Icons.add, color: Colors.white),
         onPressed: () async {
           final result = await Navigator.pushNamed(
@@ -171,11 +184,14 @@ class _ProductoListaScreenState extends State<ProductoListaScreen> {
     );
   }
 
+  // Construye el contenido principal según el estado
   Widget _buildMainContent(ProductoService productoService, ThemeData theme) {
+    // Mostrar carga si está cargando
     if (productoService.isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
 
+    // Mostrar mensaje si no hay productos
     if (productoService.productos.isEmpty) {
       return Center(
         child: Column(
@@ -197,6 +213,7 @@ class _ProductoListaScreenState extends State<ProductoListaScreen> {
       );
     }
 
+    // Lista de productos con capacidad de refrescar
     return RefreshIndicator(
       onRefresh: _loadProductos,
       child: ListView.builder(
@@ -218,7 +235,9 @@ class _ProductoListaScreenState extends State<ProductoListaScreen> {
               ),
               child: Icon(Icons.shopping_bag, color: Colors.green),
             ),
+            // Botones de acción para cada producto
             actions: [
+              // Botón para editar
               IconButton(
                 icon: Icon(Icons.edit, color: Colors.green),
                 onPressed: () async {
@@ -233,30 +252,33 @@ class _ProductoListaScreenState extends State<ProductoListaScreen> {
                   }
                 },
               ),
+              // Botón para eliminar
               IconButton(
                 icon: const Icon(Icons.delete, color: Colors.red),
                 onPressed: () async {
+                  // Confirmación antes de eliminar
                   final confirm = await showDialog<bool>(
                     context: context,
-                    builder: (context) => AlertDialog(
-                      title: const Text('Confirmar eliminación'),
-                      content: const Text(
-                        '¿Estás seguro de eliminar este producto?',
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, false),
-                          child: const Text('Cancelar'),
-                        ),
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, true),
-                          child: const Text(
-                            'Eliminar',
-                            style: TextStyle(color: Colors.red),
+                    builder:
+                        (context) => AlertDialog(
+                          title: const Text('Confirmar eliminación'),
+                          content: const Text(
+                            '¿Estás seguro de eliminar este producto?',
                           ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, false),
+                              child: const Text('Cancelar'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, true),
+                              child: const Text(
+                                'Eliminar',
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
                   );
 
                   if (confirm == true && mounted) {

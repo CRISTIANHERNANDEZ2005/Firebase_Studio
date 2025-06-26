@@ -36,7 +36,7 @@ class UsuarioService with ChangeNotifier {
 
     try {
       // Realiza petición GET autenticada
-      final response = await _authService!.makeAuthenticatedRequest(
+      final response = await _authService.makeAuthenticatedRequest(
         method: 'GET',
         url: Ruta.usuarios,
       );
@@ -73,7 +73,7 @@ class UsuarioService with ChangeNotifier {
 
     try {
       // Petición POST con los datos del nuevo usuario
-      final response = await _authService!.makeAuthenticatedRequest(
+      final response = await _authService.makeAuthenticatedRequest(
         method: 'POST',
         url: Ruta.usuarios,
         body: {
@@ -124,7 +124,7 @@ class UsuarioService with ChangeNotifier {
       };
 
       // Petición PUT para actualizar
-      final response = await _authService!.makeAuthenticatedRequest(
+      final response = await _authService.makeAuthenticatedRequest(
         method: 'PUT',
         url: '${Ruta.usuarios}$id',
         body: body,
@@ -158,7 +158,7 @@ class UsuarioService with ChangeNotifier {
 
     try {
       // Petición DELETE para eliminar
-      final response = await _authService!.makeAuthenticatedRequest(
+      final response = await _authService.makeAuthenticatedRequest(
         method: 'DELETE',
         url: '${Ruta.usuarios}$id',
       );

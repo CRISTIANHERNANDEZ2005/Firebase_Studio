@@ -1,22 +1,24 @@
+// Campo de texto personalizado con múltiples opciones
 import 'package:flutter/material.dart';
 
 class CustomTextField extends StatelessWidget {
-  final String label;
-  final TextEditingController controller;
-  final bool obscureText;
-  final String? Function(String?)? validator;
-  final IconData? prefixIcon;
-  final Widget? suffixIcon;
-  final TextInputType? keyboardType;
-  final bool enabled;
-  final int? maxLines;
-  final int? minLines;
-  final bool expands;
-  final TextInputAction? textInputAction;
-  final FocusNode? focusNode;
-  final void Function(String)? onChanged;
-  final void Function()? onEditingComplete;
-  final void Function(String)? onFieldSubmitted;
+  // Propiedades configurables
+  final String label; // Etiqueta del campo
+  final TextEditingController controller; // Controlador del texto
+  final bool obscureText; // Para contraseñas
+  final String? Function(String?)? validator; // Función de validación
+  final IconData? prefixIcon; // Icono opcional al inicio
+  final Widget? suffixIcon; // Widget opcional al final
+  final TextInputType? keyboardType; // Tipo de teclado
+  final bool enabled; // Habilita/deshabilita el campo
+  final int? maxLines; // Máximo de líneas (1 por defecto)
+  final int? minLines; // Mínimo de líneas
+  final bool expands; // Expansión vertical
+  final TextInputAction? textInputAction; // Acción del teclado
+  final FocusNode? focusNode; // Nodo de enfoque
+  final void Function(String)? onChanged; // Callback al cambiar texto
+  final void Function()? onEditingComplete; // Callback al completar edición
+  final void Function(String)? onFieldSubmitted; // Callback al enviar
 
   const CustomTextField({
     super.key,
@@ -37,6 +39,7 @@ class CustomTextField extends StatelessWidget {
     this.onEditingComplete,
     this.onFieldSubmitted,
   }) : assert(
+         // Validación en tiempo de compilación
          maxLines == null || !expands,
          'Expands no puede ser true si maxLines está definido',
        );
@@ -48,7 +51,7 @@ class CustomTextField extends StatelessWidget {
       obscureText: obscureText,
       enabled: enabled,
       keyboardType: keyboardType,
-      maxLines: expands ? null : maxLines,
+      maxLines: expands ? null : maxLines, // Manejo de expansión
       minLines: minLines,
       expands: expands,
       textInputAction: textInputAction,
@@ -58,20 +61,22 @@ class CustomTextField extends StatelessWidget {
       onFieldSubmitted: onFieldSubmitted,
       decoration: InputDecoration(
         labelText: label,
-        alignLabelWithHint: maxLines != null && maxLines! > 1,
+        alignLabelWithHint:
+            maxLines != null && maxLines! > 1, // Alineación para multilínea
         prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
         suffixIcon: suffixIcon,
         border: OutlineInputBorder(
+          // Borde estándar
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color.fromARGB(255, 30, 21, 21)),
         ),
         enabledBorder: OutlineInputBorder(
+          // Borde cuando está habilitado
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: Colors.grey.shade300),
         ),
-        filled: true,
-        fillColor: Colors.white.withOpacity(0.9),
+        filled: true, // Fondo relleno
+        fillColor: Colors.white.withOpacity(0.9), // Color de fondo
         contentPadding: const EdgeInsets.symmetric(
+          // Espaciado interno
           vertical: 16,
           horizontal: 16,
         ),

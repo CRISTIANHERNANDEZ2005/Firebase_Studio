@@ -18,7 +18,7 @@ class _UsuarioAgregarScreenState extends State<UsuarioAgregarScreen> {
   final _nombreController = TextEditingController();
   final _apellidoController = TextEditingController();
   final _contrasenaController = TextEditingController();
-
+  bool _obscurePassword = true;
   @override
   void dispose() {
     _numeroController.dispose();
@@ -94,9 +94,19 @@ class _UsuarioAgregarScreenState extends State<UsuarioAgregarScreen> {
               CustomTextField(
                 label: 'Contraseña',
                 controller: _contrasenaController,
-                obscureText: true,
+                obscureText: _obscurePassword,
                 validator: Validators.validatePassword,
                 prefixIcon: Icons.lock,
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _obscurePassword = !_obscurePassword;
+                    });
+                  },
+                ),
               ),
             ],
           ),

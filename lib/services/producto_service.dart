@@ -36,7 +36,7 @@ class ProductoService with ChangeNotifier {
 
     try {
       // Realiza petición GET autenticada
-      final response = await _authService!.makeAuthenticatedRequest(
+      final response = await _authService.makeAuthenticatedRequest(
         method: 'GET',
         url: Ruta.productos,
       );
@@ -72,7 +72,7 @@ class ProductoService with ChangeNotifier {
 
     try {
       // Petición POST con los datos del producto
-      final response = await _authService!.makeAuthenticatedRequest(
+      final response = await _authService.makeAuthenticatedRequest(
         method: 'POST',
         url: Ruta.productos,
         body: {
@@ -114,7 +114,7 @@ class ProductoService with ChangeNotifier {
 
     try {
       // Petición PUT con los datos actualizados
-      final response = await _authService!.makeAuthenticatedRequest(
+      final response = await _authService.makeAuthenticatedRequest(
         method: 'PUT',
         url: '${Ruta.productos}$id',
         body: {
@@ -153,7 +153,7 @@ class ProductoService with ChangeNotifier {
 
     try {
       // Petición DELETE para eliminar
-      final response = await _authService!.makeAuthenticatedRequest(
+      final response = await _authService.makeAuthenticatedRequest(
         method: 'DELETE',
         url: '${Ruta.productos}$id',
       );

@@ -20,6 +20,7 @@ class _UsuarioEditarScreenState extends State<UsuarioEditarScreen> {
   late TextEditingController _apellidoController;
   late TextEditingController _contrasenaController;
   late Usuario _usuario;
+  bool _obscurePassword = true;
 
   @override
   void didChangeDependencies() {
@@ -110,13 +111,23 @@ class _UsuarioEditarScreenState extends State<UsuarioEditarScreen> {
               CustomTextField(
                 label: 'Nueva Contraseña (opcional)',
                 controller: _contrasenaController,
-                obscureText: true,
+                obscureText: _obscurePassword,
                 validator:
                     (value) =>
                         value!.isEmpty
                             ? null
                             : Validators.validatePassword(value),
                 prefixIcon: Icons.lock,
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _obscurePassword = !_obscurePassword;
+                    });
+                  },
+                ),
               ),
             ],
           ),

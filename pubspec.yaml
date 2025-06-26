@@ -14,7 +14,7 @@ dependencies:
   http: ^1.2.2           # Para peticiones HTTP al backend
   provider: ^6.0.5     # Gestión de estado (corregido a versión compatible)
   shared_preferences: ^2.3.2  # Almacenar token JWT
-  flutter_secure_storage: ^9.2.0  # Almacenamiento seguro opcional
+  flutter_secure_storage: ^9.2.0  # Almacenamiento seguro
   cupertino_icons: ^1.0.8  # Iconos
   google_fonts: ^5.1.0
 

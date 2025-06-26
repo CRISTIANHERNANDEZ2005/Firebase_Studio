@@ -1,0 +1,27 @@
+name: tienda_online
+description: Aplicación Flutter para gestionar categorías, productos y usuarios con autenticación
+# Previene la publicación accidental a pub.dev, preferido para paquetes privados.
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.8.0-278.1.beta
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.2.2           # Para peticiones HTTP al backend
+  provider: ^6.0.5     # Gestión de estado (corregido a versión compatible)
+  shared_preferences: ^2.3.2  # Almacenar token JWT
+  flutter_secure_storage: ^9.2.0  # Almacenamiento seguro opcional
+  cupertino_icons: ^1.0.8  # Iconos
+  google_fonts: ^5.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true

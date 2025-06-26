@@ -1,10 +1,11 @@
-// Modelo para la entidad Usuario
+// Modelo que representa un usuario en el sistema
 class Usuario {
-  final int id;
-  final String numero;
-  final String nombre;
-  final String apellido;
+  final int id; // ID único del usuario
+  final String numero; // Número identificador (podría ser documento)
+  final String nombre; // Primer nombre del usuario
+  final String apellido; // Apellido del usuario
 
+  // Constructor - todos los campos son obligatorios
   Usuario({
     required this.id,
     required this.numero,
@@ -12,7 +13,7 @@ class Usuario {
     required this.apellido,
   });
 
-  // Crea un usuario desde JSON
+  // Crea un usuario desde datos JSON (como los que vienen de una API)
   factory Usuario.fromJson(Map<String, dynamic> json) {
     return Usuario(
       id: json['id'],
@@ -22,7 +23,7 @@ class Usuario {
     );
   }
 
-  // Convierte a JSON
+  // Convierte el usuario a formato JSON para enviar al servidor
   Map<String, dynamic> toJson() {
     return {'id': id, 'numero': numero, 'nombre': nombre, 'apellido': apellido};
   }

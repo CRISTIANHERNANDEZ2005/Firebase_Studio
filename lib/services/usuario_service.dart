@@ -1,54 +1,65 @@
-import 'dart:convert';
-import 'package:flutter/material.dart';
-import '../utils/ruta.dart';
-import '../models/usuario.dart';
-import 'auth_service.dart';
+// Importaciones necesarias
+import 'dart:convert'; // Para conversión JSON
+import 'package:flutter/material.dart'; // Para ChangeNotifier
+import '../utils/ruta.dart'; // Rutas de la API
+import '../models/usuario.dart'; // Modelo de datos Usuario
+import 'auth_service.dart'; // Servicio de autenticación
 
+// Servicio para gestión de usuarios con notificación de cambios
 class UsuarioService with ChangeNotifier {
-  List<Usuario> _usuarios = [];
-  bool _isLoading = false;
-  final AuthService? _authService;
+  // Variables de estado privadas
+  List<Usuario> _usuarios = []; // Lista interna de usuarios
+  bool _isLoading = false; // Indicador de carga
+  final AuthService? _authService; // Dependencia del servicio de autenticación
 
-  List<Usuario> get usuarios => _usuarios;
-  bool get isLoading => _isLoading;
+  // Getters públicos para acceder al estado
+  List<Usuario> get usuarios => _usuarios; // Obtener lista de usuarios
+  bool get isLoading => _isLoading; // Obtener estado de carga
 
+  // Constructor que recibe el servicio de autenticación
   UsuarioService(this._authService);
 
+  // Inicializa el servicio con datos existentes (para MultiProvider)
   void initializeIfNeeded(UsuarioService? existingService) {
     if (existingService != null) {
-      _usuarios = existingService._usuarios;
-      _isLoading = existingService._isLoading;
+      _usuarios = existingService._usuarios; // Copia la lista de usuarios
+      _isLoading = existingService._isLoading; // Copia el estado de carga
     }
   }
 
+  // Obtiene todos los usuarios desde la API
   Future<String?> fetchUsuarios() async {
     if (_authService == null) return 'Servicio no inicializado';
     
-    _isLoading = true;
-    notifyListeners();
+    _isLoading = true; // Activa el indicador de carga
+    notifyListeners(); // Notifica a los listeners (UI)
 
     try {
-      final response = await _authService.makeAuthenticatedRequest(
+      // Realiza petición GET autenticada
+      final response = await _authService!.makeAuthenticatedRequest(
         method: 'GET',
         url: Ruta.usuarios,
       );
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200) { // Si la respuesta es exitosa
+        // Convierte el JSON a objetos Usuario
         _usuarios = (jsonDecode(response.body) as List)
             .map((json) => Usuario.fromJson(json))
             .toList();
-        return null;
+        return null; // Retorna null indicando éxito
       } else {
+        // Retorna mensaje de error del servidor o uno genérico
         return jsonDecode(response.body)['error'] ?? 'Error al obtener usuarios';
       }
     } catch (e) {
-      return 'Error de conexión: ${e.toString()}';
+      return 'Error de conexión: ${e.toString()}'; // Error de red
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      _isLoading = false; // Desactiva el indicador de carga
+      notifyListeners(); // Notifica a los listeners
     }
   }
 
+  // Crea un nuevo usuario
   Future<String?> createUsuario({
     required String numero,
     required String nombre,
@@ -61,7 +72,8 @@ class UsuarioService with ChangeNotifier {
     notifyListeners();
 
     try {
-      final response = await _authService.makeAuthenticatedRequest(
+      // Petición POST con los datos del nuevo usuario
+      final response = await _authService!.makeAuthenticatedRequest(
         method: 'POST',
         url: Ruta.usuarios,
         body: {
@@ -72,8 +84,9 @@ class UsuarioService with ChangeNotifier {
         },
       );
 
-      if (response.statusCode == 201) {
+      if (response.statusCode == 201) { // 201 = Created
         final data = jsonDecode(response.body);
+        // Agrega el nuevo usuario a la lista local
         _usuarios.add(Usuario.fromJson(data['usuario']));
         return null;
       } else {
@@ -87,12 +100,13 @@ class UsuarioService with ChangeNotifier {
     }
   }
 
+  // Actualiza un usuario existente
   Future<String?> updateUsuario({
     required int id,
     required String numero,
     required String nombre,
     required String apellido,
-    String? contrasena,
+    String? contrasena, // Contraseña opcional (para no actualizarla si es null)
   }) async {
     if (_authService == null) return 'Servicio no inicializado';
     
@@ -100,21 +114,25 @@ class UsuarioService with ChangeNotifier {
     notifyListeners();
 
     try {
+      // Prepara el cuerpo de la petición
       final body = {
         'numero': numero,
         'nombre': nombre,
         'apellido': apellido,
+        // Solo incluye la contraseña si se proporcionó
         if (contrasena != null && contrasena.isNotEmpty) 'contrasena': contrasena,
       };
 
-      final response = await _authService.makeAuthenticatedRequest(
+      // Petición PUT para actualizar
+      final response = await _authService!.makeAuthenticatedRequest(
         method: 'PUT',
         url: '${Ruta.usuarios}$id',
         body: body,
       );
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200) { // 200 = OK
         final data = jsonDecode(response.body);
+        // Busca y actualiza el usuario en la lista local
         final index = _usuarios.indexWhere((user) => user.id == id);
         if (index != -1) {
           _usuarios[index] = Usuario.fromJson(data['usuario']);
@@ -131,6 +149,7 @@ class UsuarioService with ChangeNotifier {
     }
   }
 
+  // Elimina un usuario
   Future<String?> deleteUsuario(int id) async {
     if (_authService == null) return 'Servicio no inicializado';
     
@@ -138,12 +157,14 @@ class UsuarioService with ChangeNotifier {
     notifyListeners();
 
     try {
-      final response = await _authService.makeAuthenticatedRequest(
+      // Petición DELETE para eliminar
+      final response = await _authService!.makeAuthenticatedRequest(
         method: 'DELETE',
         url: '${Ruta.usuarios}$id',
       );
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200) { // 200 = OK
+        // Elimina el usuario de la lista local
         _usuarios.removeWhere((user) => user.id == id);
         return null;
       } else {

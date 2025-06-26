@@ -21,4 +21,3 @@ samples, guidance on mobile development, and a full API reference.
 # cuarto:  git commit -m "Initial commit"
 # quinto:   git remote add origin https://github.com/CRISTIANHERNANDEZ2005/Firebase_Studio.git
 # sexto:   git push -u origin main
-# token: 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

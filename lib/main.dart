@@ -17,7 +17,7 @@ import 'screens/usuarios/usuario_lista_screen.dart';
 import 'screens/usuarios/usuario_agregar_screen.dart';
 import 'screens/usuarios/usuario_editar_screen.dart';
 
-// Importaciones de servicios
+// Importaciones de servicios services/
 import 'services/auth_service.dart';
 import 'services/categoria_service.dart';
 import 'services/producto_service.dart';
@@ -82,26 +82,40 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       // desactivar el modo debug (elimina la etiqueta "Debug" en la esquina)
       debugShowCheckedModeBanner: false,
-      
+
       // Ruta inicial cuando se abre la aplicación
       initialRoute: '/login',
-      
+
       // Definición de todas las rutas de la aplicación
       routes: {
-        '/login': (context) => const LoginScreen(), // Pantalla de inicio de sesión
-        '/register': (context) => const RegisterScreen(), // Pantalla de registro
-        '/dashboard': (context) => const DashboardScreen(), // Pantalla principal después del login
-        '/categorias': (context) => const CategoriaListaScreen(), // Lista de categorías
-        '/categorias/agregar': (context) => const CategoriaAgregarScreen(), // Agregar categoría
-        '/categorias/editar': (context) => CategoriaEditarScreen(), // Editar categoría (sin const porque puede recibir parámetros)
-        '/productos': (context) => const ProductoListaScreen(), // Lista de productos
-        '/productos/agregar': (context) => const ProductoAgregarScreen(), // Agregar producto
-        '/productos/editar': (context) => ProductoEditarScreen(), // Editar producto (sin const)
-        '/usuarios': (context) => const UsuarioListaScreen(), // Lista de usuarios
-        '/usuarios/agregar': (context) => const UsuarioAgregarScreen(), // Agregar usuario
-        '/usuarios/editar': (context) => UsuarioEditarScreen(), // Editar usuario (sin const)
+        '/login':
+            (context) => const LoginScreen(), // Pantalla de inicio de sesión
+        '/register':
+            (context) => const RegisterScreen(), // Pantalla de registro
+        '/dashboard':
+            (context) =>
+                const DashboardScreen(), // Pantalla principal después del login
+        '/categorias':
+            (context) => const CategoriaListaScreen(), // Lista de categorías
+        '/categorias/agregar':
+            (context) => const CategoriaAgregarScreen(), // Agregar categoría
+        '/categorias/editar':
+            (context) =>
+                CategoriaEditarScreen(), // Editar categoría (sin const porque puede recibir parámetros)
+        '/productos':
+            (context) => const ProductoListaScreen(), // Lista de productos
+        '/productos/agregar':
+            (context) => const ProductoAgregarScreen(), // Agregar producto
+        '/productos/editar':
+            (context) => ProductoEditarScreen(), // Editar producto (sin const)
+        '/usuarios':
+            (context) => const UsuarioListaScreen(), // Lista de usuarios
+        '/usuarios/agregar':
+            (context) => const UsuarioAgregarScreen(), // Agregar usuario
+        '/usuarios/editar':
+            (context) => UsuarioEditarScreen(), // Editar usuario (sin const)
       },
-      
+
       // Manejo de rutas no definidas (404)
       onUnknownRoute: (settings) {
         return MaterialPageRoute(

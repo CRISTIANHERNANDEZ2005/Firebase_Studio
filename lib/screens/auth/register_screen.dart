@@ -119,7 +119,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
       body: Stack(
         children: [
           // Fondo decorativo solo para desktop
-          if (isDesktop) ...[
             Positioned(
               top: 0,
               left: 0,
@@ -130,7 +129,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
               right: 0,
               child: BezierContainer(color: theme.primaryColor),
             ),
-          ],
 
           // Contenido principal centrado
           Center(

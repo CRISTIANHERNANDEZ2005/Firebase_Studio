@@ -28,9 +28,6 @@ void main() {
   // Esto es especialmente importante para plataformas web antes de ejecutar la app
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Opcional: Desactivar la verificación de tipos (solo para desarrollo)
-  // Provider.debugCheckInvalidValueType = null;
-
   // Inicia la aplicación con MultiProvider que permite múltiples proveedores de estado
   runApp(
     MultiProvider(

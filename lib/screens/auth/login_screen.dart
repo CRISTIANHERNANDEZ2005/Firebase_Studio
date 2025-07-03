@@ -99,7 +99,6 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Stack(
         children: [
           // Fondo decorativo solo para desktop
-          if (isDesktop) ...[
             Positioned(
               top: 0,
               left: 0,
@@ -110,7 +109,6 @@ class _LoginScreenState extends State<LoginScreen> {
               right: 0,
               child: BezierContainer(color: theme.primaryColor),
             ),
-          ],
 
           // Contenido principal centrado
           Center(

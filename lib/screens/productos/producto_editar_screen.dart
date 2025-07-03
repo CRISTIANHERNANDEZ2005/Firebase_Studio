@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../services/producto_service.dart';
 import '../../utils/validators.dart';
 import '../../models/producto.dart';
+import '../../widgets/bezier_container.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/edit_form_container.dart';
 
@@ -99,54 +100,84 @@ class _ProductoEditarScreenState extends State<ProductoEditarScreen> {
     final productoService = Provider.of<ProductoService>(context);
 
     // Usa el mismo contenedor de formulario reutilizable
-    return EditFormContainer(
-      title: 'Editar Producto', // Título diferente
-      isLoading: productoService.isLoading,
-      onSave: _editarProducto,
-      formFields: [
-        Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              // Campo de nombre (pre-llenado)
-              CustomTextField(
-                label: 'Nombre del producto',
-                controller: _nombreController,
-                validator:
-                    (value) => Validators.validateRequired(value, 'Nombre'),
-                prefixIcon: Icons.shopping_bag,
-              ),
-              const SizedBox(height: 16),
-
-              // Campo de precio (pre-llenado)
-              CustomTextField(
-                label: 'Precio',
-                controller: _precioController,
-                keyboardType: TextInputType.number,
-                validator: _validatePrecio,
-                prefixIcon: Icons.attach_money,
-              ),
-              const SizedBox(height: 16),
-
-              // Campo de descripción (pre-llenado)
-              CustomTextField(
-                label: 'Descripción (opcional)',
-                controller: _descripcionController,
-                prefixIcon: Icons.description,
-                maxLines: 3, // Más compacto que en agregar
-              ),
-              const SizedBox(height: 16),
-
-              // Campo de categoría (pre-llenado)
-              CustomTextField(
-                label: 'Categoría (opcional)',
-                controller: _nombreCategoriaController,
-                prefixIcon: Icons.category,
-              ),
-            ],
-          ),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Editar Producto',
+          style: TextStyle(color: Colors.white),
         ),
-      ],
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+          color: Colors.white,
+        ),
+        backgroundColor: Colors.green,
+      ),
+      body: Stack(
+        children: [
+          Positioned(
+            top: 0,
+            left: 0,
+            child: BezierContainer(color: Colors.green, isTop: true),
+          ),
+          Positioned(
+            top: 10,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: EditFormContainer(
+              title: 'Editar Producto', // Título diferente
+              isLoading: productoService.isLoading,
+              onSave: _editarProducto,
+              formFields: [
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      // Campo de nombre (pre-llenado)
+                      CustomTextField(
+                        label: 'Nombre del producto',
+                        controller: _nombreController,
+                        validator:
+                            (value) =>
+                                Validators.validateRequired(value, 'Nombre'),
+                        prefixIcon: Icons.shopping_bag,
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Campo de precio (pre-llenado)
+                      CustomTextField(
+                        label: 'Precio',
+                        controller: _precioController,
+                        keyboardType: TextInputType.number,
+                        validator: _validatePrecio,
+                        prefixIcon: Icons.attach_money,
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Campo de descripción (pre-llenado)
+                      CustomTextField(
+                        label: 'Descripción (opcional)',
+                        controller: _descripcionController,
+                        prefixIcon: Icons.description,
+                        maxLines: 3, // Más compacto que en agregar
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Campo de categoría (pre-llenado)
+                      CustomTextField(
+                        label: 'Categoría (opcional)',
+                        controller: _nombreCategoriaController,
+                        prefixIcon: Icons.category,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

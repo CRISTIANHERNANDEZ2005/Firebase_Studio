@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../services/usuario_service.dart';
+import '../../widgets/bezier_container.dart';
 import '../../utils/validators.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/edit_form_container.dart';
@@ -62,65 +63,103 @@ class _UsuarioAgregarScreenState extends State<UsuarioAgregarScreen> {
   Widget build(BuildContext context) {
     final usuarioService = Provider.of<UsuarioService>(context);
 
-    return EditFormContainer(
-      title: 'Agregar Usuario',
-      isLoading: usuarioService.isLoading,
-      onSave: _agregarUsuario,
-      formFields: [
-        Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              // Campo para número de teléfono
-              CustomTextField(
-                label: 'Número',
-                controller: _numeroController,
-                validator: Validators.validateNumero,
-                prefixIcon: Icons.phone,
-                keyboardType: TextInputType.phone,
-              ),
-              const SizedBox(height: 16),
-
-              // Campo para nombre
-              CustomTextField(
-                label: 'Nombre',
-                controller: _nombreController,
-                validator:
-                    (value) => Validators.validateRequired(value, 'Nombre'),
-                prefixIcon: Icons.person,
-              ),
-              const SizedBox(height: 16),
-
-              // Campo para apellido
-              CustomTextField(
-                label: 'Apellido',
-                controller: _apellidoController,
-                validator:
-                    (value) => Validators.validateRequired(value, 'Apellido'),
-                prefixIcon: Icons.person_outline,
-              ),
-              const SizedBox(height: 16),
-
-              // Campo para contraseña con toggle de visibilidad
-              CustomTextField(
-                label: 'Contraseña',
-                controller: _contrasenaController,
-                obscureText: _obscurePassword,
-                validator: Validators.validatePassword,
-                prefixIcon: Icons.lock,
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    _obscurePassword ? Icons.visibility : Icons.visibility_off,
-                  ),
-                  onPressed:
-                      () =>
-                          setState(() => _obscurePassword = !_obscurePassword),
-                ),
-              ),
-            ],
-          ),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Agregar Usuario',
+          style: TextStyle(color: Colors.white),
         ),
-      ],
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+          color: Colors.white,
+        ),
+        backgroundColor: Colors.orange,
+      ),
+      body: Stack(
+        children: [
+          Positioned(
+            top: 0,
+            left: 0,
+            child: BezierContainer(color: Colors.orange, isTop: true),
+          ),
+          Positioned(
+            top: 0, // Adjusted top position to be below AppBar
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: EditFormContainer(
+              title: 'Agregar Usuario',
+              isLoading: usuarioService.isLoading,
+              onSave: _agregarUsuario,
+              formFields: [
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      // Campo para número de teléfono
+                      CustomTextField(
+                        label: 'Número',
+                        controller: _numeroController,
+                        validator: Validators.validateNumero,
+                        prefixIcon: Icons.phone,
+                        keyboardType: TextInputType.phone,
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Campo para nombre
+                      CustomTextField(
+                        label: 'Nombre',
+                        controller: _nombreController,
+                        validator:
+                            (value) =>
+                                Validators.validateRequired(value, 'Nombre'),
+                        prefixIcon: Icons.person,
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Campo para apellido
+                      CustomTextField(
+                        label: 'Apellido',
+                        controller: _apellidoController,
+                        validator:
+                            (value) =>
+                                Validators.validateRequired(value, 'Apellido'),
+                        prefixIcon: Icons.person_outline,
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Campo para contraseña con toggle de visibilidad
+                      CustomTextField(
+                        label: 'Contraseña',
+                        controller: _contrasenaController,
+                        obscureText: _obscurePassword,
+                        validator:
+                            (value) =>
+                                value!.isEmpty
+                                    ? null
+                                    : Validators.validatePassword(value),
+                        prefixIcon: Icons.lock,
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                          ),
+                          onPressed:
+                              () => setState(
+                                () => _obscurePassword = !_obscurePassword,
+                              ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

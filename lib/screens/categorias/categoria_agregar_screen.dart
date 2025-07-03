@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:tienda_online/widgets/bezier_container.dart';
 import '../../services/categoria_service.dart';
 import '../../utils/validators.dart';
 import '../../widgets/custom_text_field.dart';
@@ -62,29 +63,60 @@ class _CategoriaAgregarScreenState extends State<CategoriaAgregarScreen> {
   @override
   Widget build(BuildContext context) {
     final categoriaService = Provider.of<CategoriaService>(context);
+    final theme = Theme.of(context); // Obtiene el tema actual
 
     // Usa el contenedor de formulario reutilizable
-    return EditFormContainer(
-      title: 'Agregar Categoría', // Título específico
-      isLoading: categoriaService.isLoading, // Estado de carga
-      onSave: _agregarCategoria, // Función al guardar
-      formFields: [
-        // Campos del formulario
-        Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              CustomTextField(
-                label: 'Nombre de la categoría',
-                controller: _nombreController,
-                validator:
-                    (value) => Validators.validateRequired(value, 'Nombre'),
-                prefixIcon: Icons.category, // Icono descriptivo
-              ),
-            ],
-          ),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Agregar Categoría',
+          style: TextStyle(color: Colors.white),
         ),
-      ],
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+          color: Colors.white,
+        ),
+        backgroundColor: theme.primaryColor,
+      ),
+      body: Stack(
+        children: [
+          Positioned(
+            top: 0,
+            left: 0,
+            child: BezierContainer(color: theme.primaryColor, isTop: true),
+          ),
+          Positioned(
+            top: 10,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: EditFormContainer(
+              title: 'Agregar Categoría', // Título específico
+              isLoading: categoriaService.isLoading, // Estado de carga
+              onSave: _agregarCategoria, // Función al guardar
+              formFields: [
+                // Campos del formulario
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      CustomTextField(
+                        label: 'Nombre de la categoría',
+                        controller: _nombreController,
+                        validator:
+                            (value) =>
+                                Validators.validateRequired(value, 'Nombre'),
+                        prefixIcon: Icons.category, // Icono descriptivo
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

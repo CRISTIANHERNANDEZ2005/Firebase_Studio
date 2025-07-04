@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../services/producto_service.dart';
 import '../../utils/validators.dart';
+import '../../models/categoria.dart';
 import '../../models/producto.dart';
+import '../../services/categoria_service.dart';
 import '../../widgets/bezier_container.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/edit_form_container.dart';
@@ -20,9 +22,18 @@ class _ProductoEditarScreenState extends State<ProductoEditarScreen> {
   // Controladores para los campos
   late TextEditingController _nombreController;
   late TextEditingController _precioController;
-  late TextEditingController _descripcionController;
-  late TextEditingController _nombreCategoriaController;
+  late TextEditingController _descripcionController; // Producto a editar
   late Producto _producto; // Producto a editar
+  List<Categoria> _categorias = [];
+  int? _selectedCategoriaId;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchCategorias();
+    });
+  }
 
   @override
   void didChangeDependencies() {
@@ -35,9 +46,6 @@ class _ProductoEditarScreenState extends State<ProductoEditarScreen> {
       text: _producto.precio.toString(),
     );
     _descripcionController = TextEditingController(text: _producto.descripcion);
-    _nombreCategoriaController = TextEditingController(
-      text: _producto.nombreCategoria,
-    );
   }
 
   @override
@@ -46,7 +54,10 @@ class _ProductoEditarScreenState extends State<ProductoEditarScreen> {
     _nombreController.dispose();
     _precioController.dispose();
     _descripcionController.dispose();
-    _nombreCategoriaController.dispose();
+
+    // Dispose category controller if it's still used (it shouldn't be after the dropdown)
+    // If you completely removed the text field, this is not needed.
+    // _nombreCategoriaController.dispose();
     super.dispose();
   }
 
@@ -58,7 +69,8 @@ class _ProductoEditarScreenState extends State<ProductoEditarScreen> {
     return null;
   }
 
-  // Función para actualizar el producto
+  // Modifica el método _editarProducto para manejar mejor las categorías
+  // Modifica el método _editarProducto
   void _editarProducto() async {
     if (_formKey.currentState!.validate()) {
       final productoService = Provider.of<ProductoService>(
@@ -66,31 +78,56 @@ class _ProductoEditarScreenState extends State<ProductoEditarScreen> {
         listen: false,
       );
 
-      // Llama al servicio para actualizar
+      debugPrint('''
+    Datos a enviar:
+    - ID: ${_producto.id}
+    - Nombre: ${_nombreController.text}
+    - Precio: ${_precioController.text}
+    - Descripción: ${_descripcionController.text}
+    - Categoría seleccionada: $_selectedCategoriaId
+    - Categoría actual: ${_producto.categoriaId}
+    ''');
+
       final error = await productoService.updateProducto(
-        id: _producto.id, // ID del producto existente
+        id: _producto.id,
         nombre: _nombreController.text,
         precio: double.parse(_precioController.text),
         descripcion:
             _descripcionController.text.isEmpty
                 ? null
                 : _descripcionController.text,
-        nombreCategoria:
-            _nombreCategoriaController.text.isEmpty
-                ? null
-                : _nombreCategoriaController.text,
+        categoriaId: _selectedCategoriaId,
       );
 
-      // Manejo de resultados
       if (error == null && mounted) {
+        debugPrint('Producto actualizado exitosamente');
         Navigator.pop(context, 'Producto actualizado correctamente');
       } else if (mounted) {
+        debugPrint('Error al actualizar producto: $error');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(error ?? 'Error desconocido'),
             backgroundColor: Colors.red,
           ),
         );
+      }
+    }
+  }
+
+  // Function to fetch categories and update the dropdown
+  void _fetchCategorias() async {
+    if (mounted) {
+      final categoriaService = Provider.of<CategoriaService>(
+        context,
+        listen: false,
+      );
+      final error = await categoriaService.fetchCategorias();
+      if (error == null) {
+        setState(() {
+          _categorias = categoriaService.categorias;
+          // Set the selected category ID after categories are fetched
+          _selectedCategoriaId = _producto.categoriaId;
+        });
       }
     }
   }
@@ -164,11 +201,33 @@ class _ProductoEditarScreenState extends State<ProductoEditarScreen> {
                       ),
                       const SizedBox(height: 16),
 
-                      // Campo de categoría (pre-llenado)
-                      CustomTextField(
-                        label: 'Categoría (opcional)',
-                        controller: _nombreCategoriaController,
-                        prefixIcon: Icons.category,
+                      // Dropdown para seleccionar categoría
+                      DropdownButtonFormField<int>(
+                        decoration: InputDecoration(
+                          labelText: 'Categoría (opcional)',
+                          prefixIcon: Icon(Icons.category),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                        ),
+                        value: _selectedCategoriaId,
+                        items: [
+                          // Opción para ninguna categoría
+                          const DropdownMenuItem<int>(
+                            value: null,
+                            child: Text('Ninguna'),
+                          ),
+                          // Opciones de categorías fetched
+                          ..._categorias.map(
+                            (categoria) => DropdownMenuItem<int>(
+                              value: categoria.id,
+                              child: Text(categoria.nombre),
+                            ),
+                          ),
+                        ],
+                        onChanged: (int? newValue) {
+                          setState(() => _selectedCategoriaId = newValue);
+                        },
                       ),
                     ],
                   ),

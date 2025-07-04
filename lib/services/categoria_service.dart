@@ -25,7 +25,7 @@ class CategoriaService with ChangeNotifier {
     }
   }
 
-  // Obtiene todas las categorías del servidor
+  // Modifica el método fetchCategorias para mejor manejo de errores
   Future<String?> fetchCategorias() async {
     if (_authService == null) return 'Servicio no inicializado';
 
@@ -33,24 +33,28 @@ class CategoriaService with ChangeNotifier {
     notifyListeners();
 
     try {
-      // Hace una petición GET autenticada
       final response = await _authService.makeAuthenticatedRequest(
         method: 'GET',
         url: Ruta.categorias,
       );
 
+      debugPrint(
+        'Respuesta de categorías: ${response.statusCode} - ${response.body}',
+      );
+
       if (response.statusCode == 200) {
-        // Convierte la respuesta JSON en objetos Categoria
-        _categorias =
-            (jsonDecode(response.body) as List)
-                .map((json) => Categoria.fromJson(json))
-                .toList();
-        return null; // Éxito
+        final List<dynamic> data = jsonDecode(response.body);
+        _categorias = data.map((json) => Categoria.fromJson(json)).toList();
+        debugPrint('Categorías obtenidas: ${_categorias.length}');
+        return null;
       } else {
-        return jsonDecode(response.body)['error'] ??
-            'Error al obtener categorías';
+        final error =
+            jsonDecode(response.body)['error'] ?? 'Error al obtener categorías';
+        debugPrint('Error al obtener categorías: $error');
+        return error;
       }
     } catch (e) {
+      debugPrint('Excepción al obtener categorías: $e');
       return 'Error de conexión: ${e.toString()}';
     } finally {
       _isLoading = false;

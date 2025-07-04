@@ -4,6 +4,7 @@ import 'package:flutter/material.dart'; // Para ChangeNotifier
 import '../utils/ruta.dart'; // Rutas de la API
 import '../models/producto.dart'; // Modelo de datos Producto
 import 'auth_service.dart'; // Servicio de autenticación
+import 'package:flutter/foundation.dart';
 
 // Servicio para gestión de productos con notificación de cambios
 class ProductoService with ChangeNotifier {
@@ -30,7 +31,7 @@ class ProductoService with ChangeNotifier {
   // Obtiene todos los productos desde la API
   Future<String?> fetchProductos() async {
     if (_authService == null) return 'Servicio no inicializado';
-    
+
     _isLoading = true;
     notifyListeners();
 
@@ -41,14 +42,17 @@ class ProductoService with ChangeNotifier {
         url: Ruta.productos,
       );
 
-      if (response.statusCode == 200) { // 200 = OK
+      if (response.statusCode == 200) {
+        // 200 = OK
         // Convierte el JSON a objetos Producto
-        _productos = (jsonDecode(response.body) as List)
-            .map((json) => Producto.fromJson(json))
-            .toList();
+        _productos =
+            (jsonDecode(response.body) as List)
+                .map((json) => Producto.fromJson(json))
+                .toList();
         return null;
       } else {
-        return jsonDecode(response.body)['error'] ?? 'Error al obtener productos';
+        return jsonDecode(response.body)['error'] ??
+            'Error al obtener productos';
       }
     } catch (e) {
       return 'Error de conexión: ${e.toString()}';
@@ -59,39 +63,57 @@ class ProductoService with ChangeNotifier {
   }
 
   // Crea un nuevo producto
+  // Agrega este import al inicio del archivo
+
+  // Modifica el método createProducto
   Future<String?> createProducto({
     required String nombre,
     required double precio,
     String? descripcion,
-    String? nombreCategoria,
+    int? categoriaId,
   }) async {
     if (_authService == null) return 'Servicio no inicializado';
-    
+
     _isLoading = true;
     notifyListeners();
 
     try {
-      // Petición POST con los datos del producto
+      final body = {
+        'nombre': nombre,
+        'precio': precio,
+        'descripcion': descripcion ?? '',
+      };
+
+      if (categoriaId != null) {
+        body['categoria'] = {'id': categoriaId, 'ref': 'categorias'};
+      }
+
+      debugPrint('Enviando datos para crear producto: $body');
+
       final response = await _authService.makeAuthenticatedRequest(
         method: 'POST',
         url: Ruta.productos,
-        body: {
-          'nombre': nombre,
-          'precio': precio,
-          'descripcion': descripcion ?? '', // Valor por defecto si es null
-          'nombre_categoria': nombreCategoria ?? '', // Valor por defecto si es null
-        },
+        body: body,
       );
 
-      if (response.statusCode == 201) { // 201 = Created
+      debugPrint(
+        'Respuesta del servidor: ${response.statusCode} - ${response.body}',
+      );
+
+      if (response.statusCode == 201) {
         final data = jsonDecode(response.body);
-        // Agrega el nuevo producto a la lista local
-        _productos.add(Producto.fromJson(data['producto']));
+        final nuevoProducto = Producto.fromJson(data['producto']);
+        debugPrint('Producto creado: ${nuevoProducto.toJson()}');
+        _productos.add(nuevoProducto);
         return null;
       } else {
-        return jsonDecode(response.body)['error'] ?? 'Error al crear producto';
+        final error =
+            jsonDecode(response.body)['error'] ?? 'Error al crear producto';
+        debugPrint('Error al crear producto: $error');
+        return error;
       }
     } catch (e) {
+      debugPrint('Excepción al crear producto: $e');
       return 'Error de conexión: ${e.toString()}';
     } finally {
       _isLoading = false;
@@ -99,44 +121,62 @@ class ProductoService with ChangeNotifier {
     }
   }
 
-  // Actualiza un producto existente
+  // Modifica el método updateProducto
   Future<String?> updateProducto({
     required int id,
     required String nombre,
     required double precio,
     String? descripcion,
-    String? nombreCategoria,
+    int? categoriaId,
   }) async {
     if (_authService == null) return 'Servicio no inicializado';
-    
+
     _isLoading = true;
     notifyListeners();
 
     try {
-      // Petición PUT con los datos actualizados
-      final response = await _authService.makeAuthenticatedRequest(
+      final body = {
+        'nombre': nombre,
+        'precio': precio,
+        'descripcion': descripcion ?? '',
+      };
+
+      // Manejo mejorado de categoría
+      if (categoriaId != null) {
+        body['categoria'] = {'id': categoriaId};
+      }
+
+      debugPrint('Enviando datos para actualizar producto (ID: $id): $body');
+
+      final response = await _authService!.makeAuthenticatedRequest(
         method: 'PUT',
-        url: '${Ruta.productos}$id',
-        body: {
-          'nombre': nombre,
-          'precio': precio,
-          'descripcion': descripcion ?? '',
-          'nombre_categoria': nombreCategoria ?? '',
-        },
+        url: '${Ruta.productos}$id', // Quita la barra final
+        body: body,
       );
 
-      if (response.statusCode == 200) { // 200 = OK
+      debugPrint(
+        'Respuesta del servidor: ${response.statusCode} - ${response.body}',
+      );
+
+      if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        // Busca y actualiza el producto en la lista local
+        final productoActualizado = Producto.fromJson(data['producto']);
+        debugPrint('Producto actualizado: ${productoActualizado.toJson()}');
+
         final index = _productos.indexWhere((prod) => prod.id == id);
         if (index != -1) {
-          _productos[index] = Producto.fromJson(data['producto']);
+          _productos[index] = productoActualizado;
         }
         return null;
       } else {
-        return jsonDecode(response.body)['error'] ?? 'Error al actualizar producto';
+        final error =
+            jsonDecode(response.body)['error'] ??
+            'Error al actualizar producto';
+        debugPrint('Error al actualizar producto: $error');
+        return error;
       }
     } catch (e) {
+      debugPrint('Excepción al actualizar producto: $e');
       return 'Error de conexión: ${e.toString()}';
     } finally {
       _isLoading = false;
@@ -147,7 +187,7 @@ class ProductoService with ChangeNotifier {
   // Elimina un producto
   Future<String?> deleteProducto(int id) async {
     if (_authService == null) return 'Servicio no inicializado';
-    
+
     _isLoading = true;
     notifyListeners();
 
@@ -158,12 +198,14 @@ class ProductoService with ChangeNotifier {
         url: '${Ruta.productos}$id',
       );
 
-      if (response.statusCode == 200) { // 200 = OK
+      if (response.statusCode == 200) {
+        // 200 = OK
         // Elimina el producto de la lista local
         _productos.removeWhere((prod) => prod.id == id);
         return null;
       } else {
-        return jsonDecode(response.body)['error'] ?? 'Error al eliminar producto';
+        return jsonDecode(response.body)['error'] ??
+            'Error al eliminar producto';
       }
     } catch (e) {
       return 'Error de conexión: ${e.toString()}';

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../models/categoria.dart';
 import '../../services/producto_service.dart';
+import '../../services/categoria_service.dart';
 import '../../widgets/bezier_container.dart';
 import '../../utils/validators.dart';
 import '../../widgets/custom_text_field.dart';
@@ -25,8 +27,22 @@ class _ProductoAgregarScreenState extends State<ProductoAgregarScreen> {
       TextEditingController(); // Controla el campo de precio
   final _descripcionController =
       TextEditingController(); // Controla descripción
-  final _nombreCategoriaController =
-      TextEditingController(); // Controla categoría
+  List<Categoria> _categorias = []; // Local list to hold categories
+  int?
+  _selectedCategoriaId; // Para almacenar el ID de la categoría seleccionada
+
+  @override
+  void initState() {
+    super.initState();
+    // Fetch categories when the screen initializes
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final categoriaService = Provider.of<CategoriaService>(context, listen: false);
+      await categoriaService.fetchCategorias();
+      setState(() {
+        _categorias = categoriaService.categorias;
+      });
+    });
+  }
 
   @override
   void dispose() {
@@ -34,7 +50,6 @@ class _ProductoAgregarScreenState extends State<ProductoAgregarScreen> {
     _nombreController.dispose();
     _precioController.dispose();
     _descripcionController.dispose();
-    _nombreCategoriaController.dispose();
     super.dispose();
   }
 
@@ -65,14 +80,11 @@ class _ProductoAgregarScreenState extends State<ProductoAgregarScreen> {
         precio: double.parse(
           _precioController.text,
         ), // Precio convertido a double
-        descripcion:
-            _descripcionController.text.isEmpty
+        descripcion: _descripcionController.text.isEmpty
                 ? null // Descripción opcional
                 : _descripcionController.text,
-        nombreCategoria:
-            _nombreCategoriaController.text.isEmpty
-                ? null // Categoría opcional
-                : _nombreCategoriaController.text,
+        categoriaId:
+            _selectedCategoriaId, // Pasa el ID de la categoría seleccionada
       );
 
       // Manejo de resultados
@@ -96,9 +108,9 @@ class _ProductoAgregarScreenState extends State<ProductoAgregarScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final productoService = Provider.of<ProductoService>(
-      context,
-    ); // Accede al servicio
+    // Accede a los servicios necesarios
+    final productoService = Provider.of<ProductoService>(context);
+    final categoriaService = Provider.of<CategoriaService>(context, listen: false); // Access with listen: false
 
     // Usa el contenedor de formulario reutilizable
     return Scaffold(
@@ -145,7 +157,7 @@ class _ProductoAgregarScreenState extends State<ProductoAgregarScreen> {
                                 Validators.validateRequired(value, 'Nombre'),
                         prefixIcon: Icons.shopping_bag, // Icono descriptivo
                       ),
-                      const SizedBox(height: 16), // Espaciado
+                      const SizedBox(height: 16),
                       // Campo para precio del producto
                       CustomTextField(
                         label: 'Precio',
@@ -168,11 +180,32 @@ class _ProductoAgregarScreenState extends State<ProductoAgregarScreen> {
                       ),
                       const SizedBox(height: 16),
 
-                      // Campo para categoría (opcional)
-                      CustomTextField(
-                        label: 'Categoría (opcional)',
-                        controller: _nombreCategoriaController,
-                        prefixIcon: Icons.category,
+                      // Dropdown para seleccionar categoría
+                      DropdownButtonFormField<int>(
+                        decoration: const InputDecoration(
+                          labelText: 'Categoría (opcional)',
+                          prefixIcon: Icon(Icons.category),
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 15,
+                          ),
+                        ),
+                        value: _selectedCategoriaId,
+                        hint: const Text('Seleccione una categoría'),
+                        items:
+_categorias.map((Categoria categoria) { // Use the local _categorias list
+ return DropdownMenuItem<int>(
+ value: categoria.id,
+ child: Text(categoria.nombre),
+                              );
+                            }).toList(),
+                        onChanged: (int? newValue) {
+                          setState(() {
+                            _selectedCategoriaId = newValue;
+                          });
+                        },
+                        validator: (value) => null,
                       ),
                     ],
                   ),

@@ -223,10 +223,13 @@ class _ProductoListaScreenState extends State<ProductoListaScreen> {
           final producto = productoService.productos[index];
           return ListItemCard(
             title: producto.nombre,
-            subtitle:
-                'Precio: \$${producto.precio.toStringAsFixed(2)}\n'
-                'Categoría: ${producto.nombreCategoria}\n'
-                '${producto.descripcion.isNotEmpty ? producto.descripcion : ''}',
+            subtitle: 'Precio: \$${producto.precio.toStringAsFixed(2)}\n'
+                'Categoría: ${producto.nombreCategoria ?? 'Sin categoría'}${producto.descripcion != null && producto.descripcion!.isNotEmpty ? '\n${producto.descripcion}' : ''}',
+
+
+
+
+
             leading: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
